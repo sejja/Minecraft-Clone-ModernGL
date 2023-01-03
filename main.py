@@ -6,6 +6,7 @@ from camera import Camera
 from light import Light
 from mesh import Mesh
 from scene import Scene
+from GraphicsPipeline import graphicsPipeline
 
 
 class GraphicsEngine:
@@ -39,6 +40,7 @@ class GraphicsEngine:
         self.mesh = Mesh(self)
         # scene
         self.scene = Scene(self)
+        self.pipeline = graphicsPipeline(self)
 
     def check_events(self):
         for event in pg.event.get():
@@ -51,7 +53,7 @@ class GraphicsEngine:
         # clear framebuffer
         self.ctx.clear(color=(0.08, 0.16, 0.18))
         # render scene
-        self.scene.render()
+        self.pipeline.render()
         # swap buffers
         pg.display.flip()
 
@@ -63,6 +65,7 @@ class GraphicsEngine:
             self.get_time()
             self.check_events()
             self.camera.update()
+            self.scene.update()
             self.render()
             self.delta_time = self.clock.tick(60)
 
