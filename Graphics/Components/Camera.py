@@ -1,6 +1,6 @@
 #
-#	camera.py
-#	Shooter Game
+#	Camera.py
+#	Minecraft Clone
 #
 #	Created by Diego Revilla on 05/01/23
 #	Copyright © 2023 Deusto. All Rights reserved

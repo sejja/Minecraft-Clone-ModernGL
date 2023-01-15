@@ -3,6 +3,74 @@ import glm
 import Carrier
 import pygame
 
+def Bresenham3D(x1, y1, z1, x2, y2, z2):
+    ListOfPoints = []
+    ListOfPoints.append((x1, y1, z1))
+    dx = abs(x2 - x1)
+    dy = abs(y2 - y1)
+    dz = abs(z2 - z1)
+    if (x2 > x1):
+        xs = 1
+    else:
+        xs = -1
+    if (y2 > y1):
+        ys = 1
+    else:
+        ys = -1
+    if (z2 > z1):
+        zs = 1
+    else:
+        zs = -1
+
+    # Driving axis is X-axis"
+    if (dx >= dy and dx >= dz):
+        p1 = 2 * dy - dx
+        p2 = 2 * dz - dx
+        while (x1 != x2):
+            x1 += xs
+            if (p1 >= 0):
+                y1 += ys
+                p1 -= 2 * dx
+            if (p2 >= 0):
+                z1 += zs
+                p2 -= 2 * dx
+            p1 += 2 * dy
+            p2 += 2 * dz
+            ListOfPoints.append((x1, y1, z1))
+
+    # Driving axis is Y-axis"
+    elif (dy >= dx and dy >= dz):
+        p1 = 2 * dx - dy
+        p2 = 2 * dz - dy
+        while (y1 != y2):
+            y1 += ys
+            if (p1 >= 0):
+                x1 += xs
+                p1 -= 2 * dy
+            if (p2 >= 0):
+                z1 += zs
+                p2 -= 2 * dy
+            p1 += 2 * dx
+            p2 += 2 * dz
+            ListOfPoints.append((x1, y1, z1))
+
+    # Driving axis is Z-axis"
+    else:
+        p1 = 2 * dy - dz
+        p2 = 2 * dx - dz
+        while (z1 != z2):
+            z1 += zs
+            if (p1 >= 0):
+                y1 += ys
+                p1 -= 2 * dz
+            if (p2 >= 0):
+                x1 += xs
+                p2 -= 2 * dz
+            p1 += 2 * dy
+            p2 += 2 * dx
+            ListOfPoints.append((x1, y1, z1))
+    return ListOfPoints
+
 class Scene:
     def __init__(self, app):
         self.app = app
@@ -10,6 +78,7 @@ class Scene:
         self.load()
         # skybox
         self.skybox = AdvancedSkyBox(app)
+        self.pressed = False
 
     def add_object(self, obj):
         self.objects.append(obj)
@@ -29,32 +98,6 @@ class Scene:
             add(Cube(app, pos=(15, i * s, -9 + i), tex_id=2))
             add(Cube(app, pos=(15, i * s, 5 - i), tex_id=2))
 
-    def bresenham(x0, y0, x1, y1):
-        dx = x1 - x0
-        dy = y1 - y0
-
-        xsign = 1 if dx > 0 else -1
-        ysign = 1 if dy > 0 else -1
-
-        dx = abs(dx)
-        dy = abs(dy)
-
-        if dx > dy:
-            xx, xy, yx, yy = xsign, 0, 0, ysign
-        else:
-            dx, dy = dy, dx
-            xx, xy, yx, yy = 0, ysign, xsign, 0
-
-        D = 2 * dy - dx
-        y = 0
-
-        for x in range(dx + 1):
-            yield x0 + x * xx + y * yx, y0 + x * xy + y * yy
-            if D >= 0:
-                y += 1
-                D -= 2 * dx
-            D += 2 * dy
-
     def update(self):
         velocity = 0.005 * Carrier.carry.GetDeltaTime()
         direction = glm.vec3(self.app.camera.forward.x, 0, self.app.camera.forward.z)
@@ -63,9 +106,31 @@ class Scene:
         update = glm.vec3(0, 0, 0)
 
         if keys[pygame.K_SPACE]:
-            self.add_object(Cube(self.app, pos= glm.vec3(int(self.app.camera.position.x / 2) * 2,
-                                                         int(self.app.camera.position.y / 2) * 2,
-                                                         int(self.app.camera.position.z / 2) * 2)))
+            if not self.pressed:
+                list_of_points = Bresenham3D(int(self.app.camera.position.x),
+                                            int(self.app.camera.position.y),
+                                            int(self.app.camera.position.z),
+                                            int((self.app.camera.position.x + self.app.camera.forward.x * 10)),
+                                            int((self.app.camera.position.y + self.app.camera.forward.y * 10)),
+                                            int((self.app.camera.position.z + self.app.camera.forward.z * 10)))
+
+                last_pos = glm.vec3(int(self.app.camera.position.x),
+                                    int(self.app.camera.position.y),
+                                    int(self.app.camera.position.z))
+
+                for i in list_of_points:
+                    for j in self.objects:
+                        if i == j.pos:
+                            self.pressed = True
+                            self.add_object(Cube(self.app, pos= last_pos))
+                            return
+                    last_pos = i
+
+
+                self.pressed = True
+        else:
+            self.pressed = False
+
 
         if keys[pygame.K_w]:
             update += direction * velocity

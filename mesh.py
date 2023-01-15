@@ -1,12 +1,12 @@
 from vao import VAO
 from texture import Texture
-
+import GraphicsPipeline
 
 class Mesh:
     def __init__(self, app):
         self.app = app
-        self.vao = VAO(app.ctx)
-        self.texture = Texture(app.ctx)
+        self.vao = VAO()
+        self.texture = Texture(GraphicsPipeline.Gfx.GetContext())
 
     def destroy(self):
         self.vao.destroy()

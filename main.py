@@ -1,12 +1,11 @@
 import pygame as pg
-import moderngl as mgl
 import sys
 from model import *
-from camera import Camera
+from Graphics.Components.Camera import Camera
 from light import Light
 from mesh import Mesh
 from scene import Scene
-from GraphicsPipeline import graphicsPipeline
+import GraphicsPipeline
 import Carrier
 
 
@@ -25,10 +24,6 @@ class GraphicsEngine:
         # mouse settings
         pg.event.set_grab(True)
         pg.mouse.set_visible(False)
-        # detect and use existing opengl context
-        self.ctx = mgl.create_context()
-        # self.ctx.front_face = 'cw'
-        self.ctx.enable(flags=mgl.DEPTH_TEST | mgl.CULL_FACE)
         # create an object to help track time
         self.clock = pg.time.Clock()
         self.time = 0
@@ -37,9 +32,12 @@ class GraphicsEngine:
         self.light = Light()
         # camera
         # mesh
+        Carrier.carry.SetApp(self)
+        GraphicsPipeline.Gfx.SetApp(self)
         self.mesh = Mesh(self)
         # scene
-        self.pipeline = graphicsPipeline(self)
+
+
 
     def check_events(self):
         for event in pg.event.get():
@@ -50,9 +48,9 @@ class GraphicsEngine:
 
     def render(self):
         # clear framebuffer
-        self.ctx.clear(color=(0.08, 0.16, 0.18))
+        GraphicsPipeline.Gfx.GetContext().clear(color=(0.08, 0.16, 0.18))
         # render scene
-        self.pipeline.render()
+        GraphicsPipeline.Gfx.render()
         # swap buffers
         pg.display.flip()
 
@@ -70,8 +68,8 @@ class GraphicsEngine:
 
 if __name__ == '__main__':
     app = GraphicsEngine()
-    Carrier.carry = Carrier.Carrier_Struct(app)
     app.camera = Camera()
     app.camera.position = glm.vec3(0, 0, 4)
     app.scene = Scene(app)
     app.run()
+    Carrier.carry.Destroy()
