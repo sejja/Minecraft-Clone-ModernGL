@@ -9,9 +9,6 @@ in vec4 shadowCoord;
 
 struct Light {
     vec3 position;
-    vec3 Ia;
-    vec3 Id;
-    vec3 Is;
 };
 
 uniform Light light;
@@ -49,18 +46,18 @@ vec3 getLight(vec3 color) {
     vec3 Normal = normalize(normal);
 
     // ambient light
-    vec3 ambient = light.Ia;
+    vec3 ambient = vec3(0.06f, 0.06f, 0.06f);
 
     // diffuse light
     vec3 lightDir = normalize(light.position - fragPos);
     float diff = max(0, dot(lightDir, Normal));
-    vec3 diffuse = diff * light.Id;
+    vec3 diffuse = diff * vec3(.8f, .8f, .8f);
 
     // specular light
     vec3 viewDir = normalize(camPos - fragPos);
     vec3 reflectDir = reflect(-lightDir, Normal);
     float spec = pow(max(dot(viewDir, reflectDir), 0), 32);
-    vec3 specular = spec * light.Is;
+    vec3 specular = spec * vec3(1.f, 1.f, 1.f);
 
     float shadow = getSoftShadow();
 

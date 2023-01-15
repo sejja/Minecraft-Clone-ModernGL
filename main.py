@@ -7,6 +7,7 @@ from light import Light
 from mesh import Mesh
 from scene import Scene
 from GraphicsPipeline import graphicsPipeline
+import Carrier
 
 
 class GraphicsEngine:
@@ -35,11 +36,9 @@ class GraphicsEngine:
         # light
         self.light = Light()
         # camera
-        self.camera = Camera(self)
         # mesh
         self.mesh = Mesh(self)
         # scene
-        self.scene = Scene(self)
         self.pipeline = graphicsPipeline(self)
 
     def check_events(self):
@@ -69,37 +68,10 @@ class GraphicsEngine:
             self.render()
             self.delta_time = self.clock.tick(60)
 
-
 if __name__ == '__main__':
     app = GraphicsEngine()
+    Carrier.carry = Carrier.Carrier_Struct(app)
+    app.camera = Camera()
+    app.camera.position = glm.vec3(0, 0, 4)
+    app.scene = Scene(app)
     app.run()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
