@@ -17,7 +17,7 @@ class Camera:
     # Constructor of the Camera
     #------------------------------------------------------------------------
     def __init__(self):
-        self.position = glm.vec3(0, 0, 0)
+        self.mPostition = glm.vec3(0, 0, 0)
         self.up = glm.vec3(0, 1, 0)
         self.right = glm.vec3(1, 0, 0)
         self.forward = glm.vec3(0, 0, -1)

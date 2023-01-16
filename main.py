@@ -69,7 +69,7 @@ class GraphicsEngine:
 if __name__ == '__main__':
     app = GraphicsEngine()
     app.camera = Camera()
-    app.camera.position = glm.vec3(0, 0, 4)
+    app.camera.position = glm.vec3(0, 1, 4)
     app.scene = Scene(app)
     app.run()
     Carrier.carry.Destroy()

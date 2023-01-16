@@ -19,5 +19,5 @@ class ShaderProgram:
         program = self.ctx.program(vertex_shader=vertex_shader, fragment_shader=fragment_shader)
         return program
 
-    def destroy(self):
+    def Destroy(self):
         [program.release() for program in self.programs.values()]

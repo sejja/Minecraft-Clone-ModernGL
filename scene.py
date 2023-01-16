@@ -2,6 +2,7 @@ from model import *
 import glm
 import Carrier
 import pygame
+import Mixer
 
 def Bresenham3D(x1, y1, z1, x2, y2, z2):
     ListOfPoints = []
@@ -79,6 +80,8 @@ class Scene:
         # skybox
         self.skybox = AdvancedSkyBox(app)
         self.pressed = False
+        self.texture = 0
+        self.mForce = glm.vec3(0, 0, 0)
 
     def add_object(self, obj):
         self.objects.append(obj)
@@ -86,9 +89,10 @@ class Scene:
     def load(self):
         app = self.app
         add = self.add_object
+        Mixer.audio.PlaySound("Content/Audio/Music/Subwoofer Lullaby.mp3")
 
         # floor
-        n, s = 20, 2
+        n, s = 20, 1
         for x in range(-n, n, s):
             for z in range(-n, n, s):
                 add(Cube(app, pos=(x, -s, z)))
@@ -122,7 +126,7 @@ class Scene:
                     for j in self.objects:
                         if i == j.pos:
                             self.pressed = True
-                            self.add_object(Cube(self.app, pos= last_pos))
+                            self.add_object(Cube(self.app, pos= last_pos, tex_id= self.texture))
                             return
                     last_pos = i
 
@@ -131,6 +135,46 @@ class Scene:
         else:
             self.pressed = False
 
+        if keys[pygame.K_BACKSPACE]:
+            list_of_points = Bresenham3D(int(self.app.camera.position.x),
+                                        int(self.app.camera.position.y),
+                                        int(self.app.camera.position.z),
+                                        int((self.app.camera.position.x + self.app.camera.forward.x * 10)),
+                                        int((self.app.camera.position.y + self.app.camera.forward.y * 10)),
+                                        int((self.app.camera.position.z + self.app.camera.forward.z * 10)))
+
+            last_pos = glm.vec3(int(self.app.camera.position.x),
+                                int(self.app.camera.position.y),
+                                int(self.app.camera.position.z))
+
+            for i in list_of_points:
+                for j in self.objects:
+                    if i == j.pos:
+                        self.pressed = True
+                        self.objects.remove(j)
+                        return
+                last_pos = i
+
+        stepping = False
+
+        for i in self.objects:
+            if i.pos == glm.vec3(int(self.app.camera.position.x),
+                                        int(self.app.camera.position.y) - 2,
+                                        int(self.app.camera.position.z)):
+                stepping = True
+                break
+
+        if keys[pygame.K_u] and stepping:
+            self.mForce += glm.vec3(0, 0.2, 0)
+
+        if not stepping:
+            self.mForce.y -= 0.016
+        elif self.mForce.y < 0:
+            self.mForce.y = 0
+
+        self.app.camera.position += self.mForce
+
+        update = glm.vec3(0, 0, 0)
 
         if keys[pygame.K_w]:
             update += direction * velocity
@@ -141,8 +185,24 @@ class Scene:
         if keys[pygame.K_d]:
             update += perp * velocity
 
+        if keys[pygame.K_1]:
+            self.texture = 0
+        if keys[pygame.K_2]:
+            self.texture = 1
+        if keys[pygame.K_3]:
+            self.texture = 2
+
         if update.x != 0 and update.z != 0:
-            self.app.camera.position += glm.normalize(update) / 10
+            block = False
+            for i in self.objects:
+                if i.pos == glm.vec3(int(self.app.camera.position.x + glm.normalize(update).x),
+                                     int(self.app.camera.position.y),
+                                     int(self.app.camera.position.z + glm.normalize(update).z)):
+                    block = True
+                    break
+
+            if not block:
+                self.app.camera.position += glm.normalize(update) / 10
 
         rel_x, rel_y = pygame.mouse.get_rel()
         self.app.camera.yaw += rel_x * 0.05

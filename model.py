@@ -2,6 +2,8 @@ import moderngl as mgl
 import numpy as np
 import glm
 
+import Carrier
+
 
 class BaseModel:
     def __init__(self, app, vao_name, tex_id, pos=(0, 0, 0), rot=(0, 0, 0), scale=(1, 1, 1)):
@@ -12,8 +14,8 @@ class BaseModel:
         self.scale = scale
         self.m_model = self.get_model_matrix()
         self.tex_id = tex_id
-        self.vao = app.mesh.vao.vaos[vao_name]
-        self.program = self.vao.program
+        self.vao = Carrier.carry.GetContent(vao_name)
+        self.program = self.vao.GetShader()
         self.camera = self.app.camera
 
     def update(self): ...
@@ -32,7 +34,7 @@ class BaseModel:
 
     def render(self):
         self.update()
-        self.vao.render()
+        self.vao.GetGLArrayObject().render()
 
 
 class ExtendedBaseModel(BaseModel):
@@ -51,7 +53,7 @@ class ExtendedBaseModel(BaseModel):
 
     def render_shadow(self):
         self.update_shadow()
-        self.shadow_vao.render()
+        self.shadow_vao.GetGLArrayObject().render()
 
     def on_init(self):
         self.program['m_view_light'].write(self.app.light.m_view_light)
@@ -60,8 +62,8 @@ class ExtendedBaseModel(BaseModel):
         self.program['shadowMap'] = 1
         self.depth_texture.use(location=1)
         #shadow
-        self.shadow_vao = self.app.mesh.vao.vaos['shadow_' + self.vao_name]
-        self.shadow_program = self.shadow_vao.program
+        self.shadow_vao = Carrier.carry.GetContent('shadow_' + self.vao_name)
+        self.shadow_program = self.shadow_vao.GetShader()
         self.shadow_program['m_proj'].write(self.camera.get_projection_matrix())
         self.shadow_program['m_view_light'].write(self.app.light.m_view_light)
         self.shadow_program['m_model'].write(self.m_model)
@@ -78,11 +80,11 @@ class ExtendedBaseModel(BaseModel):
 
 
 class Cube(ExtendedBaseModel):
-    def __init__(self, app, vao_name='cube', tex_id=0, pos=(0, 0, 0), rot=(0, 0, 0), scale=(1, 1, 1)):
+    def __init__(self, app, vao_name='cube_vao', tex_id=0, pos=(0, 0, 0), rot=(0, 0, 0), scale=(1, 1, 1)):
         super().__init__(app, vao_name, tex_id, pos, rot, scale)
 
 class AdvancedSkyBox(BaseModel):
-    def __init__(self, app, vao_name='advanced_skybox', tex_id='skybox',
+    def __init__(self, app, vao_name='skybox_vao', tex_id='skybox',
                  pos=(0, 0, 0), rot=(0, 0, 0), scale=(1, 1, 1)):
         super().__init__(app, vao_name, tex_id, pos, rot, scale)
         self.on_init()
