@@ -75,8 +75,10 @@ def Bresenham3D(x1, y1, z1, x2, y2, z2):
             ListOfPoints.append((x1, y1, z1))
     return ListOfPoints
 
+Quit = False
+
 def Background_music():
-    while True:
+    while not Quit:
         music_list = ["Subwoofer Lullaby", "Clark", "Dry Hands", "Equinoxe", "Minecraft",
                     "Haggstrom", "Moog City", "Oxygene", "Sweden", "Wet Hands"]
         Mixer.audio.PlaySound("Content/Audio/Music/" + random.choice(music_list) + ".mp3")
@@ -92,6 +94,9 @@ class Scene:
         self.pressed = False
         self.texture = 0
         self.mForce = glm.vec3(0, 0, 0)
+        self.x = threading.Thread(target=Background_music)
+        self.x.start()
+        self.moving = False
 
     def add_object(self, obj):
         self.objects.append(obj)
@@ -99,9 +104,6 @@ class Scene:
     def load(self):
         app = self.app
         add = self.add_object
-
-        x = threading.Thread(target=Background_music)
-        x.start()
 
         # floor
         n, s = 20, 1
@@ -134,6 +136,7 @@ class Scene:
                         if i == j.pos:
                             self.pressed = True
                             self.add_object(Cube(self.app, pos= last_pos, tex_id= self.texture))
+                            Mixer.audio.PlaySound("Content/Audio/Sfx/PlacingBlock.mp3")
                             return
                     last_pos = i
 
@@ -159,6 +162,7 @@ class Scene:
                     if i == j.pos:
                         self.pressed = True
                         self.objects.remove(j)
+                        Mixer.audio.PlaySound("Content/Audio/Sfx/Remove.mp3")
                         return
                 last_pos = i
 
@@ -178,6 +182,7 @@ class Scene:
             self.mForce.y -= 0.016
         elif self.mForce.y < 0:
             self.mForce.y = 0
+            self.app.camera.mPostition.y = int(self.app.camera.mPostition.y)
 
         self.app.camera.position += self.mForce
 
@@ -233,12 +238,26 @@ class Scene:
             if not block:
                 self.app.camera.position += glm.normalize(update) / 10
 
+                if not self.moving:
+                    Mixer.audio.PlaySound("Content/Audio/Sfx/Footsteps.mp3", -1)
+                self.moving = True
+            else:
+                if self.moving:
+                    Mixer.audio.Pause("Content/Audio/Sfx/Footsteps.mp3")
+                self.moving = False
+        else:
+            if self.moving:
+                Mixer.audio.Pause("Content/Audio/Sfx/Footsteps.mp3")
+            self.moving = False
+
         rel_x, rel_y = pygame.mouse.get_rel()
         self.app.camera.yaw += rel_x * 0.05
         self.app.camera.pitch = max(-89.99, min(89.99, self.app.camera.pitch - rel_y * 0.05))
-
 
     def render(self):
         for obj in self.objects:
             obj.render()
         self.skybox.render()
+
+    def Destroy(self):
+        Quit = True

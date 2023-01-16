@@ -72,4 +72,5 @@ if __name__ == '__main__':
     app.camera.position = glm.vec3(0, 1, 4)
     app.scene = Scene(app)
     app.run()
+    app.scene.Destroy()
     Carrier.carry.Destroy()
