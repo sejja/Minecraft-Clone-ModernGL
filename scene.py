@@ -3,6 +3,9 @@ import glm
 import Carrier
 import pygame
 import Mixer
+import random
+import threading
+import time
 
 def Bresenham3D(x1, y1, z1, x2, y2, z2):
     ListOfPoints = []
@@ -72,6 +75,13 @@ def Bresenham3D(x1, y1, z1, x2, y2, z2):
             ListOfPoints.append((x1, y1, z1))
     return ListOfPoints
 
+def Background_music():
+    while True:
+        music_list = ["Subwoofer Lullaby", "Clark", "Dry Hands", "Equinoxe", "Minecraft",
+                    "Haggstrom", "Moog City", "Oxygene", "Sweden", "Wet Hands"]
+        Mixer.audio.PlaySound("Content/Audio/Music/" + random.choice(music_list) + ".mp3")
+        time.sleep(5 * 60)
+
 class Scene:
     def __init__(self, app):
         self.app = app
@@ -89,18 +99,15 @@ class Scene:
     def load(self):
         app = self.app
         add = self.add_object
-        Mixer.audio.PlaySound("Content/Audio/Music/Subwoofer Lullaby.mp3")
+
+        x = threading.Thread(target=Background_music)
+        x.start()
 
         # floor
         n, s = 20, 1
         for x in range(-n, n, s):
             for z in range(-n, n, s):
                 add(Cube(app, pos=(x, -s, z)))
-
-        # columns
-        for i in range(9):
-            add(Cube(app, pos=(15, i * s, -9 + i), tex_id=2))
-            add(Cube(app, pos=(15, i * s, 5 - i), tex_id=2))
 
     def update(self):
         velocity = 0.005 * Carrier.carry.GetDeltaTime()
@@ -187,17 +194,39 @@ class Scene:
 
         if keys[pygame.K_1]:
             self.texture = 0
-        if keys[pygame.K_2]:
+        elif keys[pygame.K_2]:
             self.texture = 1
-        if keys[pygame.K_3]:
+        elif keys[pygame.K_3]:
             self.texture = 2
+        elif keys[pygame.K_3]:
+            self.texture = 3
+        elif keys[pygame.K_4]:
+            self.texture = 4
+        elif keys[pygame.K_5]:
+            self.texture = 5
+        elif keys[pygame.K_6]:
+            self.texture = 6
+        elif keys[pygame.K_7]:
+            self.texture = 7
+        elif keys[pygame.K_8]:
+            self.texture = 8
+        elif keys[pygame.K_9]:
+            self.texture = 9
+        elif keys[pygame.K_0]:
+            self.texture = 10
 
         if update.x != 0 and update.z != 0:
             block = False
             for i in self.objects:
-                if i.pos == glm.vec3(int(self.app.camera.position.x + glm.normalize(update).x),
+                if i.pos == glm.vec3(int(self.app.camera.position.x + update.x),
                                      int(self.app.camera.position.y),
                                      int(self.app.camera.position.z + glm.normalize(update).z)):
+                    block = True
+                    break
+
+                if i.pos == glm.vec3(int(self.app.camera.position.x + update.x),
+                                     int(self.app.camera.position.y) - 1,
+                                     int(self.app.camera.position.z + update.z)):
                     block = True
                     break
 
