@@ -8,7 +8,9 @@
 
 import math
 import glm
-import Carrier
+import AssetManager
+import GraphicsPipeline
+
 
 class Camera:
     #------------------------------------------------------------------------
@@ -52,7 +54,8 @@ class Camera:
     # Computes the Projection Matrix and returns it
     # ------------------------------------------------------------------------
     def get_projection_matrix(self):
-        return glm.perspective(glm.radians(50), Carrier.carry.GetWindowWidth() / Carrier.carry.GetWindowHeight(), 0.01, 5000)
+        return glm.perspective(glm.radians(50), GraphicsPipeline.Gfx.GetWindowWidth() /
+            GraphicsPipeline.Gfx.GetWindowHeight(), 0.01, 5000)
 
 
 

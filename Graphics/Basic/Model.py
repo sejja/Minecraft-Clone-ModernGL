@@ -18,7 +18,7 @@ class Model:
         self.mVertexBuffer = vertex_object
         self.mShader = shader
         self.mVao = GraphicsPipeline.Gfx.GetContext().vertex_array(self.mShader,
-            [(self.mVertexBuffer.GetGLVertexBufferObject(), self.mVertexBuffer.GetFormat(),
+            [(vertex_object.GetGLVertexBufferObject(), self.mVertexBuffer.GetFormat(),
             *self.mVertexBuffer.GetAttributes())])
 
     # ------------------------------------------------------------------------

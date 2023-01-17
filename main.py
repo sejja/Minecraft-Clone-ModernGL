@@ -3,10 +3,9 @@ import sys
 from model import *
 from Graphics.Components.Camera import Camera
 from light import Light
-from mesh import Mesh
 from scene import Scene
 import GraphicsPipeline
-import Carrier
+import AssetManager
 
 
 class GraphicsEngine:
@@ -32,9 +31,7 @@ class GraphicsEngine:
         self.light = Light()
         # camera
         # mesh
-        Carrier.carry.SetApp(self)
         GraphicsPipeline.Gfx.SetApp(self)
-        self.mesh = Mesh(self)
         # scene
 
 
@@ -73,4 +70,4 @@ if __name__ == '__main__':
     app.scene = Scene(app)
     app.run()
     app.scene.Destroy()
-    Carrier.carry.Destroy()
+    AssetManager.Assets.Destroy()

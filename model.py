@@ -1,22 +1,37 @@
-import moderngl as mgl
-import numpy as np
 import glm
 import pygame
-import Carrier
+import AssetManager
 import GraphicsPipeline
+from Graphics.Basic import Model
+from Graphics.Basic import VertexBuffers
 
 class BaseModel:
-    def __init__(self, app, vao_name, tex_id, pos=(0, 0, 0), rot=(0, 0, 0), scale=(1, 1, 1)):
+    def __init__(self, app, vbo_name, shader_name, tex_id, pos=(0, 0, 0), rot=(0, 0, 0), scale=(1, 1, 1)):
         self.app = app
         self.pos = pos
-        self.vao_name = vao_name
         self.rot = glm.vec3([glm.radians(a) for a in rot])
         self.scale = scale
         self.m_model = self.get_model_matrix()
-        self.tex_id = tex_id
-        self.vao = Carrier.carry.GetContent(vao_name)
-        self.program = self.vao.GetShader()
         self.camera = self.app.camera
+
+        vao_name = vbo_name  + "_" + shader_name
+
+        if not AssetManager.Assets.AssetExists(vao_name):
+            AssetManager.Assets.AddContent(vao_name, Model.Model(
+                AssetManager.Assets.GetContent(shader_name).GetShaderObject(),
+                AssetManager.Assets.GetContent(vbo_name)))
+
+        shadow_vao_name = vbo_name + "_shadow"
+
+        if not AssetManager.Assets.AssetExists(shadow_vao_name):
+            AssetManager.Assets.AddContent(shadow_vao_name, Model.Model(
+                AssetManager.Assets.GetContent("shaders/shadow_map.shader").GetShaderObject(),
+                AssetManager.Assets.GetContent(vbo_name)))
+
+        self.tex_id = tex_id
+        self.vao = AssetManager.Assets.GetContent(vao_name)
+        self.shadow_vao = AssetManager.Assets.GetContent(shadow_vao_name)
+        self.program = self.vao.GetShader()
 
     def update(self): ...
 
@@ -37,9 +52,10 @@ class BaseModel:
         self.vao.GetGLArrayObject().render()
 
 
-class ExtendedBaseModel(BaseModel):
-    def __init__(self, app, vao_name, tex_id, pos, rot, scale):
-        super().__init__(app, vao_name, tex_id, pos, rot, scale)
+class Cube(BaseModel):
+    def __init__(self, app, tex_id, pos, rot = (0, 0, 0), scale = (1, 1, 1)):
+        super().__init__(app, "Content/Meshes/Cube.obj", "shaders/default.shader",
+        tex_id, pos, rot, scale)
         self.on_init()
 
     def update(self):
@@ -62,13 +78,12 @@ class ExtendedBaseModel(BaseModel):
         self.program['shadowMap'] = 1
         self.depth_texture.use(location=1)
         #shadow
-        self.shadow_vao = Carrier.carry.GetContent('shadow_' + self.vao_name)
         self.shadow_program = self.shadow_vao.GetShader()
         self.shadow_program['m_proj'].write(self.camera.get_projection_matrix())
         self.shadow_program['m_view_light'].write(self.app.light.m_view_light)
         self.shadow_program['m_model'].write(self.m_model)
         # texture
-        self.texture = Carrier.carry.GetContent(self.tex_id)
+        self.texture = AssetManager.Assets.GetContent(self.tex_id)
         self.program['u_texture_0'] = 0
         self.texture.GetTexture().use()
         # mvp
@@ -79,14 +94,27 @@ class ExtendedBaseModel(BaseModel):
         self.program['light.position'].write(self.app.light.position)
 
 
-class Cube(ExtendedBaseModel):
-    def __init__(self, app, vao_name='cube_vao', tex_id=0, pos=(0, 0, 0), rot=(0, 0, 0), scale=(1, 1, 1)):
-        super().__init__(app, vao_name, tex_id, pos, rot, scale)
-
 class AdvancedSkyBox(BaseModel):
     def __init__(self, app, vao_name='skybox_vao', tex_id='skybox',
                  pos=(0, 0, 0), rot=(0, 0, 0), scale=(1, 1, 1)):
-        super().__init__(app, vao_name, tex_id, pos, rot, scale)
+
+        self.app = app
+        self.pos = pos
+        self.rot = glm.vec3([glm.radians(a) for a in rot])
+        self.scale = scale
+        self.m_model = self.get_model_matrix()
+        self.camera = self.app.camera
+        self.tex_id = tex_id
+
+        if not AssetManager.Assets.AssetExists("skybox_vao"):
+            AssetManager.Assets.AddContent('skybox_vao',
+                                           Model.Model(AssetManager.Assets.GetContent(
+                                               "shaders/advanced_skybox.shader").GetShaderObject(),
+                                                 VertexBuffers.SkyBoxVertexBuffer()))
+
+        self.vao = AssetManager.Assets.GetContent("skybox_vao")
+        self.program = self.vao.GetShader()
+
         self.on_init()
 
     def update(self):

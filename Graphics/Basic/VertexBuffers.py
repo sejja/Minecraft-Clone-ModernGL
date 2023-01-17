@@ -60,13 +60,14 @@ class BaseVertexBuffer:
     def Destroy(self):
         self.mVbo.release()
 
-class CubeVertexBuffer(BaseVertexBuffer):
+class VertexBuffer3D(BaseVertexBuffer):
     # ------------------------------------------------------------------------
     # __init__
     #
     # Constructor of the cube Vertex Buffer Object
     # ------------------------------------------------------------------------
-    def __init__(self):
+    def __init__(self, path):
+        self.mPath = path
         super().__init__('2f 3f 3f', ['in_texcoord_0', 'in_normal', 'in_position'])
 
     # ------------------------------------------------------------------------
@@ -75,7 +76,7 @@ class CubeVertexBuffer(BaseVertexBuffer):
     # Constructor of the cube Vertex Buffer Object
     # ------------------------------------------------------------------------
     def GetVertices(self):
-        return np.array(pywavefront.Wavefront('Content/Meshes/cube.obj', parse=True).materials.popitem()[1].vertices, dtype='f4')
+        return np.array(pywavefront.Wavefront(self.mPath + ".obj", parse=True).materials.popitem()[1].vertices, dtype='f4')
 
 class SkyBoxVertexBuffer(BaseVertexBuffer):
     # ------------------------------------------------------------------------

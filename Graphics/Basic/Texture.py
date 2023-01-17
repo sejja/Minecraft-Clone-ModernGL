@@ -17,7 +17,7 @@ class Texture:
     # Constructs a texture with the path of the image file
     # ------------------------------------------------------------------------
     def __init__(self, path):
-        self.texture = pygame.image.load(path).convert()
+        self.texture = pygame.image.load(path + ".png").convert()
         self.texture = pygame.transform.flip(self.texture, flip_x= False, flip_y= True)
         self.texture = GraphicsPipeline.Gfx.GetContext().texture(size= self.texture.get_size(), components= 3,
                                                             data= pygame.image.tostring(self.texture, 'RGB'))

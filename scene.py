@@ -1,6 +1,6 @@
 from model import *
 import glm
-import Carrier
+import AssetManager
 import pygame
 import Mixer
 import random
@@ -112,7 +112,7 @@ class Scene:
                 add(Cube(app, pos=(x, -s, z), tex_id= 'textures/img_5.png'))
 
     def update(self):
-        velocity = 0.005 * Carrier.carry.GetDeltaTime()
+        velocity = 0.005 * GraphicsPipeline.Gfx.GetDeltaTime()
         direction = glm.vec3(self.app.camera.forward.x, 0, self.app.camera.forward.z)
         perp = glm.vec3(-direction.z, 0, direction.x)
         keys = pygame.key.get_pressed()
