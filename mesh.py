@@ -8,11 +8,14 @@ import Graphics.Basic.VertexBuffers
 class Mesh:
     def __init__(self, app):
         self.app = app
+        Carrier.carry.AddContent("shaders/default", shader_program.ShaderProgram("shaders/default"))
+        Carrier.carry.AddContent("shaders/shadow_map", shader_program.ShaderProgram("shaders/shadow_map"))
+        Carrier.carry.AddContent("shaders/advanced_skybox", shader_program.ShaderProgram("shaders/advanced_skybox"))
         Carrier.carry.AddContent('cube_vbo', Graphics.Basic.VertexBuffers.CubeVertexBuffer())
         Carrier.carry.AddContent('skybox_vbo', Graphics.Basic.VertexBuffers.SkyBoxVertexBuffer())
-        Carrier.carry.AddContent('cube_vao', Model(shader_program.ShaderProgram(GraphicsPipeline.Gfx.GetContext()).programs['default'], Carrier.carry.GetContent('cube_vbo')))
-        Carrier.carry.AddContent('shadow_cube_vao', Model(shader_program.ShaderProgram(GraphicsPipeline.Gfx.GetContext()).programs['shadow_map'], Carrier.carry.GetContent('cube_vbo')))
-        Carrier.carry.AddContent('skybox_vao', Model(shader_program.ShaderProgram(GraphicsPipeline.Gfx.GetContext()).programs['advanced_skybox'], Carrier.carry.GetContent('skybox_vbo')))
+        Carrier.carry.AddContent('cube_vao', Model(Carrier.carry.GetContent("shaders/default").GetShaderObject(), Carrier.carry.GetContent('cube_vbo')))
+        Carrier.carry.AddContent('shadow_cube_vao', Model(Carrier.carry.GetContent("shaders/shadow_map").GetShaderObject(), Carrier.carry.GetContent('cube_vbo')))
+        Carrier.carry.AddContent('skybox_vao', Model(Carrier.carry.GetContent("shaders/advanced_skybox").GetShaderObject(), Carrier.carry.GetContent('skybox_vbo')))
         Carrier.carry.AddContent('textures/img.png', Texture('textures/img.png'))
         Carrier.carry.AddContent('textures/img_1.png', Texture('textures/img_1.png'))
         Carrier.carry.AddContent('textures/img_2.png', Texture('textures/img_2.png'))

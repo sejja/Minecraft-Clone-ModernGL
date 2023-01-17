@@ -1,23 +1,42 @@
+#
+#	ShaderProgram.py
+#	Minecraft Clone
+#
+#	Created by Diego Revilla on 17/01/23
+#	Copyright © 2023 Deusto. All Rights reserved
+#
 
+import GraphicsPipeline
 
 class ShaderProgram:
-    def __init__(self, ctx):
-        self.ctx = ctx
-        self.programs = {}
-        self.programs['default'] = self.get_program('default')
-        self.programs['skybox'] = self.get_program('skybox')
-        self.programs['advanced_skybox'] = self.get_program('advanced_skybox')
-        self.programs['shadow_map'] = self.get_program('shadow_map')
+    # ------------------------------------------------------------------------
+    # Constructor
+    #
+    # Loads a shader, and uploads it to the GPU
+    # ------------------------------------------------------------------------
+    def __init__(self, shader_name):
+        shaders = [".vert", ".frag"]
 
-    def get_program(self, shader_program_name):
-        with open(f'shaders/{shader_program_name}.vert') as file:
-            vertex_shader = file.read()
+        for i in range(2):
+            with open(shader_name + shaders[i]) as file:
+                shaders[i] = file.read()
+                file.close()
 
-        with open(f'shaders/{shader_program_name}.frag') as file:
-            fragment_shader = file.read()
+        self.mProgram = GraphicsPipeline.Gfx.GetContext().program(vertex_shader= shaders[0],
+            fragment_shader= shaders[1])
 
-        program = self.ctx.program(vertex_shader=vertex_shader, fragment_shader=fragment_shader)
-        return program
+    # ------------------------------------------------------------------------
+    # Get Shader Object
+    #
+    # Returns the OpenGL Handle to the Shader
+    # ------------------------------------------------------------------------
+    def GetShaderObject(self):
+        return self.mProgram
 
+    # ------------------------------------------------------------------------
+    # Destroy
+    #
+    # Unloads the Shader from the GPU
+    # ------------------------------------------------------------------------
     def Destroy(self):
-        [program.release() for program in self.programs.values()]
+        self.mProgram.release()
