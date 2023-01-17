@@ -90,9 +90,9 @@ class Scene:
         self.objects = []
         self.load()
         # skybox
-        self.skybox = AdvancedSkyBox(app)
+        self.skybox = AdvancedSkyBox(app, tex_id='Textures/skybox1/')
         self.pressed = False
-        self.texture = 0
+        self.texture = 'textures/img.png'
         self.mForce = glm.vec3(0, 0, 0)
         self.x = threading.Thread(target=Background_music)
         self.x.start()
@@ -106,10 +106,10 @@ class Scene:
         add = self.add_object
 
         # floor
-        n, s = 20, 1
+        n, s = 30, 1
         for x in range(-n, n, s):
             for z in range(-n, n, s):
-                add(Cube(app, pos=(x, -s, z)))
+                add(Cube(app, pos=(x, -s, z), tex_id= 'textures/img_5.png'))
 
     def update(self):
         velocity = 0.005 * Carrier.carry.GetDeltaTime()
@@ -198,27 +198,27 @@ class Scene:
             update += perp * velocity
 
         if keys[pygame.K_1]:
-            self.texture = 0
+            self.texture = 'textures/img.png'
         elif keys[pygame.K_2]:
-            self.texture = 1
+            self.texture = 'textures/img_1.png'
         elif keys[pygame.K_3]:
-            self.texture = 2
+            self.texture = 'textures/img_2.png'
         elif keys[pygame.K_3]:
-            self.texture = 3
+            self.texture = 'textures/img_3.png'
         elif keys[pygame.K_4]:
-            self.texture = 4
+            self.texture = 'textures/img_4.png'
         elif keys[pygame.K_5]:
-            self.texture = 5
+            self.texture = 'textures/img_5.png'
         elif keys[pygame.K_6]:
-            self.texture = 6
+            self.texture = 'textures/img_6.png'
         elif keys[pygame.K_7]:
-            self.texture = 7
+            self.texture = 'textures/img_7.png'
         elif keys[pygame.K_8]:
-            self.texture = 8
+            self.texture = 'textures/img_8.png'
         elif keys[pygame.K_9]:
-            self.texture = 9
+            self.texture = 'textures/img_9.png'
         elif keys[pygame.K_0]:
-            self.texture = 10
+            self.texture = 'textures/img_10.png'
 
         if update.x != 0 and update.z != 0:
             block = False

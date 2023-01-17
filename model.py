@@ -1,9 +1,9 @@
 import moderngl as mgl
 import numpy as np
 import glm
-
+import pygame
 import Carrier
-
+import GraphicsPipeline
 
 class BaseModel:
     def __init__(self, app, vao_name, tex_id, pos=(0, 0, 0), rot=(0, 0, 0), scale=(1, 1, 1)):
@@ -43,7 +43,7 @@ class ExtendedBaseModel(BaseModel):
         self.on_init()
 
     def update(self):
-        self.texture.use(location=0)
+        self.texture.GetTexture().use(location=0)
         self.program['camPos'].write(self.camera.position)
         self.program['m_view'].write(self.camera.m_view)
         self.program['m_model'].write(self.m_model)
@@ -58,7 +58,7 @@ class ExtendedBaseModel(BaseModel):
     def on_init(self):
         self.program['m_view_light'].write(self.app.light.m_view_light)
         self.program['u_resolution'].write(glm.vec2([1600, 900]))
-        self.depth_texture = self.app.mesh.texture.textures['depth_texture']
+        self.depth_texture = GraphicsPipeline.Gfx.get_depth_texture()
         self.program['shadowMap'] = 1
         self.depth_texture.use(location=1)
         #shadow
@@ -68,9 +68,9 @@ class ExtendedBaseModel(BaseModel):
         self.shadow_program['m_view_light'].write(self.app.light.m_view_light)
         self.shadow_program['m_model'].write(self.m_model)
         # texture
-        self.texture = self.app.mesh.texture.textures[self.tex_id]
+        self.texture = Carrier.carry.GetContent(self.tex_id)
         self.program['u_texture_0'] = 0
-        self.texture.use(location=0)
+        self.texture.GetTexture().use()
         # mvp
         self.program['m_proj'].write(self.camera.get_projection_matrix())
         self.program['m_view'].write(self.camera.get_view_matrix())
@@ -95,9 +95,30 @@ class AdvancedSkyBox(BaseModel):
 
     def on_init(self):
         # texture
-        self.texture = self.app.mesh.texture.textures[self.tex_id]
+        self.texture = self.get_texture_cube(self.tex_id)
         self.program['u_texture_skybox'] = 0
         self.texture.use(location=0)
+
+    def get_texture_cube(self, dir_path, ext='png'):
+        faces = ['right', 'left', 'top', 'bottom'] + ['front', 'back'][::-1]
+        # textures = [pg.image.load(dir_path + f'{face}.{ext}').convert() for face in faces]
+        textures = []
+        for face in faces:
+            texture = pygame.image.load(dir_path + f'{face}.{ext}').convert()
+            if face in ['right', 'left', 'front', 'back']:
+                texture = pygame.transform.flip(texture, flip_x=True, flip_y=False)
+            else:
+                texture = pygame.transform.flip(texture, flip_x=False, flip_y=True)
+            textures.append(texture)
+
+        size = textures[0].get_size()
+        texture_cube = GraphicsPipeline.Gfx.GetContext().texture_cube(size=size, components=3, data=None)
+
+        for i in range(6):
+            texture_data = pygame.image.tostring(textures[i], 'RGB')
+            texture_cube.write(face=i, data=texture_data)
+
+        return texture_cube
 
 
 
