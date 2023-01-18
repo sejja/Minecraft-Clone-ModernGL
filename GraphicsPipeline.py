@@ -12,9 +12,19 @@ class graphicsPipeline:
         self.depth_texture = self.ctx.depth_texture([1600, 900])  # WINSIZE
         self.depth_texture.repeat_x = False
         self.depth_texture.repeat_y = False
+        self.lights = []
 
     def GetContext(self):
         return self.ctx
+
+    def GetCamera(self):
+        return self.app.camera
+
+    def GetLights(self):
+        return self.lights
+
+    def AddLight(self, light):
+        self.lights.append(light)
 
     def render_shadow(self):
         if not 'self.depth_fbo' in locals():
@@ -25,7 +35,7 @@ class graphicsPipeline:
         self.depth_fbo.use()
 
         for obj in self.app.scene.objects:
-            obj.render_shadow()
+            obj.ShadowRender()
 
     # ------------------------------------------------------------------------
     # GetDeltaTime

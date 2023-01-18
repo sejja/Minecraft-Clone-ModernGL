@@ -41,6 +41,10 @@ class AssetManager:
     def AssetExists(self, name):
         return name in self.content.keys()
 
+    def RemoveAsset(self, name):
+        self.content[name].Destroy()
+        self.content.pop(name)
+
     # ------------------------------------------------------------------------
     # Add Content
     #

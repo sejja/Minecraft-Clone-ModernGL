@@ -15,5 +15,4 @@ class Mixer:
         if soundfile in self.loadedsounds.keys():
             pygame.mixer.Channel(self.loadedsounds[soundfile][0]).pause()
 
-
 audio = Mixer()

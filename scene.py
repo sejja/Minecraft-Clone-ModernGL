@@ -1,11 +1,14 @@
-from model import *
+from ECSystem import *
 import glm
-import AssetManager
 import pygame
 import Mixer
 import random
 import threading
 import time
+from Gameplay import Cube
+import Skybox
+import GraphicsPipeline
+import VoxelPhysicSystem
 
 def Bresenham3D(x1, y1, z1, x2, y2, z2):
     ListOfPoints = []
@@ -90,13 +93,14 @@ class Scene:
         self.objects = []
         self.load()
         # skybox
-        self.skybox = AdvancedSkyBox(app, tex_id='Textures/skybox1/')
+        self.skybox = Skybox.SkyBox(tex_id='Textures/skybox1/')
         self.pressed = False
         self.texture = 'textures/img.png'
         self.mForce = glm.vec3(0, 0, 0)
         self.x = threading.Thread(target=Background_music)
         self.x.start()
         self.moving = False
+        self.getTicksLastFrame = 0
 
     def add_object(self, obj):
         self.objects.append(obj)
@@ -105,11 +109,14 @@ class Scene:
         app = self.app
         add = self.add_object
 
+        VoxelPhysicSystem.Physx.SetBounds(glm.vec3(-250, -5, -250), glm.vec3(250, 250, 250))
+        VoxelPhysicSystem.Physx.Setup()
+
         # floor
         n, s = 30, 1
         for x in range(-n, n, s):
             for z in range(-n, n, s):
-                add(Cube(app, pos=(x, -s, z), tex_id= 'textures/img_5.png'))
+                add(Cube.Cube(pos=glm.vec3(x, -s, z), tex_id= 'textures/img_5.png'))
 
     def update(self):
         velocity = 0.005 * GraphicsPipeline.Gfx.GetDeltaTime()
@@ -120,60 +127,30 @@ class Scene:
 
         if keys[pygame.K_SPACE]:
             if not self.pressed:
-                list_of_points = Bresenham3D(int(self.app.camera.position.x),
-                                            int(self.app.camera.position.y),
-                                            int(self.app.camera.position.z),
-                                            int((self.app.camera.position.x + self.app.camera.forward.x * 10)),
-                                            int((self.app.camera.position.y + self.app.camera.forward.y * 10)),
-                                            int((self.app.camera.position.z + self.app.camera.forward.z * 10)))
+                raycast = VoxelPhysicSystem.Physx.RaycastClosestPointInmediatePrevious(self.app.camera.position, self.app.camera.forward)
 
-                last_pos = glm.vec3(int(self.app.camera.position.x),
-                                    int(self.app.camera.position.y),
-                                    int(self.app.camera.position.z))
-
-                for i in list_of_points:
-                    for j in self.objects:
-                        if i == j.pos:
-                            self.pressed = True
-                            self.add_object(Cube(self.app, pos= last_pos, tex_id= self.texture))
-                            Mixer.audio.PlaySound("Content/Audio/Sfx/PlacingBlock.mp3")
-                            return
-                    last_pos = i
-
+                if raycast != self.app.camera:
+                    self.pressed = True
+                    self.add_object(Cube.Cube(pos=glm.vec3(raycast[0], raycast[1], raycast[2]), tex_id=self.texture))
+                    Mixer.audio.PlaySound("Content/Audio/Sfx/PlacingBlock.mp3")
 
                 self.pressed = True
         else:
             self.pressed = False
 
         if keys[pygame.K_BACKSPACE]:
-            list_of_points = Bresenham3D(int(self.app.camera.position.x),
-                                        int(self.app.camera.position.y),
-                                        int(self.app.camera.position.z),
-                                        int((self.app.camera.position.x + self.app.camera.forward.x * 10)),
-                                        int((self.app.camera.position.y + self.app.camera.forward.y * 10)),
-                                        int((self.app.camera.position.z + self.app.camera.forward.z * 10)))
+            raycast = VoxelPhysicSystem.Physx.RaycastClosestPoint(self.app.camera.position, self.app.camera.forward)
 
-            last_pos = glm.vec3(int(self.app.camera.position.x),
-                                int(self.app.camera.position.y),
-                                int(self.app.camera.position.z))
-
-            for i in list_of_points:
+            if raycast != self.app.camera:
                 for j in self.objects:
-                    if i == j.pos:
+                    if j.mTransform.mPosition == raycast:
                         self.pressed = True
+                        j.Destroy()
                         self.objects.remove(j)
                         Mixer.audio.PlaySound("Content/Audio/Sfx/Remove.mp3")
                         return
-                last_pos = i
 
-        stepping = False
-
-        for i in self.objects:
-            if i.pos == glm.vec3(int(self.app.camera.position.x),
-                                        int(self.app.camera.position.y) - 2,
-                                        int(self.app.camera.position.z)):
-                stepping = True
-                break
+        stepping = VoxelPhysicSystem.Physx.IsColliding(self.app.camera.position, glm.vec3(0, -2, 0))
 
         if keys[pygame.K_u] and stepping:
             self.mForce += glm.vec3(0, 0.2, 0)
@@ -221,19 +198,9 @@ class Scene:
             self.texture = 'textures/img_10.png'
 
         if update.x != 0 and update.z != 0:
-            block = False
-            for i in self.objects:
-                if i.pos == glm.vec3(int(self.app.camera.position.x + update.x),
-                                     int(self.app.camera.position.y),
-                                     int(self.app.camera.position.z + glm.normalize(update).z)):
-                    block = True
-                    break
-
-                if i.pos == glm.vec3(int(self.app.camera.position.x + update.x),
-                                     int(self.app.camera.position.y) - 1,
-                                     int(self.app.camera.position.z + update.z)):
-                    block = True
-                    break
+            block = VoxelPhysicSystem.Physx.IsColliding(self.app.camera.position,
+                glm.normalize(update)) or VoxelPhysicSystem.Physx.IsColliding(
+                self.app.camera.position - glm.vec3(0, 1, 0), glm.normalize(update))
 
             if not block:
                 self.app.camera.position += glm.normalize(update) / 10
@@ -255,9 +222,14 @@ class Scene:
         self.app.camera.pitch = max(-89.99, min(89.99, self.app.camera.pitch - rel_y * 0.05))
 
     def render(self):
+        #t = pygame.time.get_ticks()
+        # deltaTime in seconds.
+        #deltaTime = (t - self.getTicksLastFrame) / 1000.0
+        #self.getTicksLastFrame = t
+
         for obj in self.objects:
-            obj.render()
-        self.skybox.render()
+            obj.Render()
+        self.skybox.Render()
 
     def Destroy(self):
         Quit = True

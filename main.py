@@ -1,6 +1,7 @@
 import pygame as pg
 import sys
-from model import *
+import glm
+from ECSystem import *
 from Graphics.Components.Camera import Camera
 from light import Light
 from scene import Scene
@@ -27,11 +28,10 @@ class GraphicsEngine:
         self.clock = pg.time.Clock()
         self.time = 0
         self.delta_time = 0
-        # light
-        self.light = Light()
         # camera
         # mesh
         GraphicsPipeline.Gfx.SetApp(self)
+        GraphicsPipeline.Gfx.AddLight(Light())
         # scene
 
 
@@ -39,7 +39,6 @@ class GraphicsEngine:
     def check_events(self):
         for event in pg.event.get():
             if event.type == pg.QUIT or (event.type == pg.KEYDOWN and event.key == pg.K_ESCAPE):
-                self.mesh.Destroy()
                 pg.quit()
                 sys.exit()
 
