@@ -10,6 +10,15 @@ import Skybox
 import GraphicsPipeline
 import VoxelPhysicSystem
 
+# importing all files  from tkinter
+from tkinter import *
+from tkinter import ttk
+
+# import only asksaveasfile from filedialog
+# which is used to save file in any extension
+from tkinter.filedialog import asksaveasfile
+from tkinter.filedialog import askopenfilename
+
 def Bresenham3D(x1, y1, z1, x2, y2, z2):
     ListOfPoints = []
     ListOfPoints.append((x1, y1, z1))
@@ -113,10 +122,39 @@ class Scene:
         VoxelPhysicSystem.Physx.Setup()
 
         # floor
-        n, s = 30, 1
+        n, s = 40, 1
         for x in range(-n, n, s):
             for z in range(-n, n, s):
                 add(Cube.Cube(pos=glm.vec3(x, -s, z), tex_id= 'textures/img_5.png'))
+
+    def SaveScene(self):
+        files = [('Minepy map', '*.mnpy')]
+        with asksaveasfile(filetypes=files, defaultextension=files) as file:
+            savestring = ""
+            for x in self.objects:
+                savestring += str(x.mTransform.mPosition.x) + "$" + \
+                              str(x.mTransform.mPosition.y) + "$" + \
+                              str(x.mTransform.mPosition.z) + "$"
+                savestring += x.mComponents[0].tex_id + "$"
+
+            file.write(savestring)
+            file.close()
+
+    def OpenScene(self):
+        self.objects.clear()
+        files = [('Minepy map', '*.mnpy')]
+
+        file_name = askopenfilename(filetypes=files, defaultextension=files)
+
+        with open(file_name, "r") as file:
+            savestring = file.read().split('$')
+
+            for i in range(int(len(savestring) / 4)):
+                pos_x = int(float(savestring[i * 4 + 0]))
+                pos_y = int(float(savestring[i * 4 + 1]))
+                pos_z = int(float(savestring[i * 4 + 2]))
+                texture = savestring[i * 4 + 3]
+                self.objects.append(Cube.Cube(pos=glm.vec3(pos_x, pos_y, pos_z), tex_id= texture))
 
     def update(self):
         velocity = 0.005 * GraphicsPipeline.Gfx.GetDeltaTime()
@@ -196,6 +234,12 @@ class Scene:
             self.texture = 'textures/img_9.png'
         elif keys[pygame.K_0]:
             self.texture = 'textures/img_10.png'
+
+        if keys[pygame.K_o]:
+            self.SaveScene()
+
+        if keys[pygame.K_i]:
+            self.OpenScene()
 
         if update.x != 0 and update.z != 0:
             block = VoxelPhysicSystem.Physx.IsColliding(self.app.camera.position,
