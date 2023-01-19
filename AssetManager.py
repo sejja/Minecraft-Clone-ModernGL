@@ -38,6 +38,12 @@ class AssetManager:
     def AddContent(self, name, object):
         self.content[name] = object
 
+    # ------------------------------------------------------------------------
+    # Asset Exists
+    #
+    # Returns wether an Asset exists or not
+    # ------------------------------------------------------------------------
+
     def AssetExists(self, name):
         return name in self.content.keys()
 

@@ -19,78 +19,8 @@ from tkinter import ttk
 from tkinter.filedialog import asksaveasfile
 from tkinter.filedialog import askopenfilename
 
-def Bresenham3D(x1, y1, z1, x2, y2, z2):
-    ListOfPoints = []
-    ListOfPoints.append((x1, y1, z1))
-    dx = abs(x2 - x1)
-    dy = abs(y2 - y1)
-    dz = abs(z2 - z1)
-    if (x2 > x1):
-        xs = 1
-    else:
-        xs = -1
-    if (y2 > y1):
-        ys = 1
-    else:
-        ys = -1
-    if (z2 > z1):
-        zs = 1
-    else:
-        zs = -1
-
-    # Driving axis is X-axis"
-    if (dx >= dy and dx >= dz):
-        p1 = 2 * dy - dx
-        p2 = 2 * dz - dx
-        while (x1 != x2):
-            x1 += xs
-            if (p1 >= 0):
-                y1 += ys
-                p1 -= 2 * dx
-            if (p2 >= 0):
-                z1 += zs
-                p2 -= 2 * dx
-            p1 += 2 * dy
-            p2 += 2 * dz
-            ListOfPoints.append((x1, y1, z1))
-
-    # Driving axis is Y-axis"
-    elif (dy >= dx and dy >= dz):
-        p1 = 2 * dx - dy
-        p2 = 2 * dz - dy
-        while (y1 != y2):
-            y1 += ys
-            if (p1 >= 0):
-                x1 += xs
-                p1 -= 2 * dy
-            if (p2 >= 0):
-                z1 += zs
-                p2 -= 2 * dy
-            p1 += 2 * dx
-            p2 += 2 * dz
-            ListOfPoints.append((x1, y1, z1))
-
-    # Driving axis is Z-axis"
-    else:
-        p1 = 2 * dy - dz
-        p2 = 2 * dx - dz
-        while (z1 != z2):
-            z1 += zs
-            if (p1 >= 0):
-                y1 += ys
-                p1 -= 2 * dz
-            if (p2 >= 0):
-                x1 += xs
-                p2 -= 2 * dz
-            p1 += 2 * dy
-            p2 += 2 * dx
-            ListOfPoints.append((x1, y1, z1))
-    return ListOfPoints
-
-Quit = False
-
 def Background_music():
-    while not Quit:
+    while True:
         music_list = ["Subwoofer Lullaby", "Clark", "Dry Hands", "Equinoxe", "Minecraft",
                     "Haggstrom", "Moog City", "Oxygene", "Sweden", "Wet Hands"]
         Mixer.audio.PlaySound("Content/Audio/Music/" + random.choice(music_list) + ".mp3")
@@ -102,9 +32,9 @@ class Scene:
         self.objects = []
         self.load()
         # skybox
-        self.skybox = Skybox.SkyBox(tex_id='Textures/skybox1/')
+        self.skybox = Skybox.SkyBox(tex_id='Content/Textures/skybox1/')
         self.pressed = False
-        self.texture = 'textures/img.png'
+        self.texture = 'Content/Textures/img.png'
         self.mForce = glm.vec3(0, 0, 0)
         self.x = threading.Thread(target=Background_music)
         self.x.start()
@@ -122,10 +52,10 @@ class Scene:
         VoxelPhysicSystem.Physx.Setup()
 
         # floor
-        n, s = 40, 1
+        n, s = 20, 1
         for x in range(-n, n, s):
             for z in range(-n, n, s):
-                add(Cube.Cube(pos=glm.vec3(x, -s, z), tex_id= 'textures/img_5.png'))
+                add(Cube.Cube(pos=glm.vec3(x, -s, z), tex_id= 'Content/Textures/img_5.png'))
 
     def SaveScene(self):
         files = [('Minepy map', '*.mnpy')]
@@ -213,27 +143,27 @@ class Scene:
             update += perp * velocity
 
         if keys[pygame.K_1]:
-            self.texture = 'textures/img.png'
+            self.texture = 'Content/Textures/img.png'
         elif keys[pygame.K_2]:
-            self.texture = 'textures/img_1.png'
+            self.texture = 'Content/Textures/img_1.png'
         elif keys[pygame.K_3]:
-            self.texture = 'textures/img_2.png'
+            self.texture = 'Content/Textures/img_2.png'
         elif keys[pygame.K_3]:
-            self.texture = 'textures/img_3.png'
+            self.texture = 'Content/Textures/img_3.png'
         elif keys[pygame.K_4]:
-            self.texture = 'textures/img_4.png'
+            self.texture = 'Content/Textures/img_4.png'
         elif keys[pygame.K_5]:
-            self.texture = 'textures/img_5.png'
+            self.texture = 'Content/Textures/img_5.png'
         elif keys[pygame.K_6]:
-            self.texture = 'textures/img_6.png'
+            self.texture = 'Content/Textures/img_6.png'
         elif keys[pygame.K_7]:
-            self.texture = 'textures/img_7.png'
+            self.texture = 'Content/Textures/img_7.png'
         elif keys[pygame.K_8]:
-            self.texture = 'textures/img_8.png'
+            self.texture = 'Content/Textures/img_8.png'
         elif keys[pygame.K_9]:
-            self.texture = 'textures/img_9.png'
+            self.texture = 'Content/Textures/img_9.png'
         elif keys[pygame.K_0]:
-            self.texture = 'textures/img_10.png'
+            self.texture = 'Content/Textures/img_10.png'
 
         if keys[pygame.K_o]:
             self.SaveScene()

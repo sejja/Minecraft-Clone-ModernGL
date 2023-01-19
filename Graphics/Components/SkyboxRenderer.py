@@ -14,13 +14,13 @@ class SkyboxRenderer(GraphicComponent.GraphicComponent):
         if not AssetManager.Assets.AssetExists("skybox_vao"):
             AssetManager.Assets.AddContent('skybox_vao',
                                            Model.Model(AssetManager.Assets.GetContent(
-                                               "shaders/advanced_skybox.shader").GetShaderObject(),
+                                               "Content/Shaders/advanced_skybox.shader").GetShaderObject(),
                                                  VertexBuffers.SkyBoxVertexBuffer()))
             AssetManager.Assets.AddContent("skybox.tex", self.ProcessSkybox(name))
 
         self.texture = AssetManager.Assets.GetContent("skybox.tex")
         self.vao = AssetManager.Assets.GetContent("skybox_vao")
-        self.vao.GetShader()['u_texture_skybox'] = 0
+        self.vao.GetShader()['u_Texture'] = 0
         self.texture.use(location=0)
 
     def ProcessSkybox(self, dir_path):
@@ -44,7 +44,7 @@ class SkyboxRenderer(GraphicComponent.GraphicComponent):
         return texture_cube
 
     def Render(self):
-        self.vao.GetShader()['m_invProjView'].write(glm.inverse(
+        self.vao.GetShader()['u_mProj'].write(glm.inverse(
             GraphicsPipeline.Gfx.GetCamera().get_projection_matrix() *
             glm.mat4(glm.mat3(GraphicsPipeline.Gfx.GetCamera().get_view_matrix()))))
         super().Render()

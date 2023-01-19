@@ -1,25 +1,25 @@
-#version 330 core
+#version 460 core
 
-layout (location = 0) out vec4 fragColor;
-
-in vec2 uv_0;
-in vec3 normal;
-in vec3 fragPos;
+in vec2 in_uv;
+in vec3 in_normal;
+in vec3 in_fragPos;
 in vec4 shadowCoord;
+
+out vec4 out_color;
 
 struct Light {
     vec3 position;
 };
 
 uniform Light light;
-uniform sampler2D u_texture_0;
-uniform vec3 camPos;
-uniform sampler2DShadow shadowMap;
+uniform sampler2D u_Texture;
+uniform vec3 u_CamPos;
+uniform sampler2DShadow u_ShadowMap;
 uniform vec2 u_resolution;
 
 float lookup(float ox, float oy) {
     vec2 pixelOffset = 1 / u_resolution;
-    return textureProj(shadowMap, shadowCoord + vec4(ox * pixelOffset.x * shadowCoord.w,
+    return textureProj(u_ShadowMap, shadowCoord + vec4(ox * pixelOffset.x * shadowCoord.w,
                         oy * pixelOffset.y * shadowCoord.w, 0.0, 0.0));
 }
 
@@ -38,23 +38,23 @@ float getSoftShadow() {
 }
 
 float getShadow() {
-    float shadow = textureProj(shadowMap, shadowCoord);
+    float shadow = textureProj(u_ShadowMap, shadowCoord);
     return shadow;
 }
 
 vec3 getLight(vec3 color) {
-    vec3 Normal = normalize(normal);
+    vec3 Normal = normalize(in_normal);
 
     // ambient light
     vec3 ambient = vec3(0.06f, 0.06f, 0.06f);
 
     // diffuse light
-    vec3 lightDir = normalize(light.position - fragPos);
+    vec3 lightDir = normalize(light.position - in_fragPos);
     float diff = max(0, dot(lightDir, Normal));
     vec3 diffuse = diff * vec3(.8f, .8f, .8f);
 
     // specular light
-    vec3 viewDir = normalize(camPos - fragPos);
+    vec3 viewDir = normalize(u_CamPos - in_fragPos);
     vec3 reflectDir = reflect(-lightDir, Normal);
     float spec = pow(max(dot(viewDir, reflectDir), 0), 32);
     vec3 specular = spec * vec3(1.f, 1.f, 1.f);
@@ -67,13 +67,13 @@ vec3 getLight(vec3 color) {
 
 void main() {
     float gamma = 2.2;
-    vec3 color = texture(u_texture_0, uv_0).rgb;
+    vec3 color = texture(u_Texture, in_uv).rgb;
     color = pow(color, vec3(gamma));
 
     color = getLight(color);
 
     color = pow(color, 1 / vec3(gamma));
-    fragColor = vec4(color, 1.0);
+    out_color = vec4(color, 1.0);
 }
 
 

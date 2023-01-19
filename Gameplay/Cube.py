@@ -10,5 +10,5 @@ class Cube(ECSystem.Object):
         self.mTransform.mRotation = rot
         self.mTransform.mScale = scale
         self.mComponents.append(OBJRenderer.OBJRenderer(self, "Content/Meshes/Cube.obj",
-            "shaders/default.shader", tex_id))
+            "Content/Shaders/default.shader", tex_id))
         self.mComponents.append(Collider.VoxelCollider(self))
