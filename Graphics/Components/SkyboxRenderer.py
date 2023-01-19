@@ -14,7 +14,7 @@ class SkyboxRenderer(GraphicComponent.GraphicComponent):
         if not AssetManager.Assets.AssetExists("skybox_vao"):
             AssetManager.Assets.AddContent('skybox_vao',
                                            Model.Model(AssetManager.Assets.GetContent(
-                                               "Content/Shaders/advanced_skybox.shader").GetShaderObject(),
+                                               "Content/Shaders/skybox.shader").GetShaderObject(),
                                                  VertexBuffers.SkyBoxVertexBuffer()))
             AssetManager.Assets.AddContent("skybox.tex", self.ProcessSkybox(name))
 
