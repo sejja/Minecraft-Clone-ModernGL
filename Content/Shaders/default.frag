@@ -1,35 +1,33 @@
-#version 330 core
+#version 460 core
 
 layout (location = 0) out vec4 fragColor;
 
-in vec2 uv_0;
-in vec3 normal;
-in vec3 fragPos;
-in vec4 shadowCoord;
+in vec2 in_UV;
+in vec3 in_Normal;
+in vec3 in_Pos;
+in vec4 in_Shadowcord;
 
 struct Light {
     vec3 position;
 };
 
-uniform Light light;
-uniform sampler2D u_texture_0;
-uniform vec3 camPos;
-uniform sampler2DShadow shadowMap;
+uniform Light u_light;
+uniform sampler2D u_texture;
+uniform vec3 u_CamPos;
+uniform sampler2DShadow u_shadowmap;
 uniform vec2 u_resolution;
 
 float lookup(float ox, float oy) {
     vec2 pixelOffset = 1 / u_resolution;
-    return textureProj(shadowMap, shadowCoord + vec4(ox * pixelOffset.x * shadowCoord.w,
-                        oy * pixelOffset.y * shadowCoord.w, 0.0, 0.0));
+    return textureProj(u_shadowmap, in_Shadowcord + vec4(ox * pixelOffset.x * in_Shadowcord.w,
+                        oy * pixelOffset.y * in_Shadowcord.w, 0.0, 0.0));
 }
 
-float getSoftShadow() {
+float getShadow() {
     float shadow;
-    float swidth = 1.0;
-    float endp = swidth / 1.5;
 
-    for(float y = -endp; y <= endp; y += swidth) {
-        for (float x = -endp; x <= endp; x += swidth) {
+    for(int y = -1; y <= 1; y++) {
+        for (int x = -1; x <= 1; x++) {
             shadow += lookup(x, y);
         }
     }
@@ -37,41 +35,13 @@ float getSoftShadow() {
     return shadow / 16.0;
 }
 
-float getShadow() {
-    float shadow = textureProj(shadowMap, shadowCoord);
-    return shadow;
-}
-
 vec3 getLight(vec3 color) {
-    vec3 Normal = normalize(normal);
-
-    // ambient light
-    vec3 ambient = vec3(0.06f, 0.06f, 0.06f);
-
-    // diffuse light
-    vec3 lightDir = normalize(light.position - fragPos);
-    float diff = max(0, dot(lightDir, Normal));
-    vec3 diffuse = diff * vec3(.8f, .8f, .8f);
-
-    // specular light
-    vec3 viewDir = normalize(camPos - fragPos);
-    vec3 reflectDir = reflect(-lightDir, Normal);
-    float spec = pow(max(dot(viewDir, reflectDir), 0), 32);
-    vec3 specular = spec * vec3(1.f, 1.f, 1.f);
-
-    float shadow = getSoftShadow();
-
-    return color * (ambient + (diffuse + specular) * shadow);
+    vec3 Normal = normalize(in_Normal);
+    vec3 lightDir = normalize(u_light.position - in_Pos);
+    return color * (vec3(0.05, 0.05f, 0.05f) + (max(0, dot(lightDir, Normal)) * vec3(.8f, .8f, .8f) + vec3(pow(max(dot(normalize(u_CamPos - in_Pos), reflect(-lightDir, Normal)), 0), 32))) * getShadow());
 }
 
 
 void main() {
-    float gamma = 2.2;
-    vec3 color = texture(u_texture_0, uv_0).rgb;
-    color = pow(color, vec3(gamma));
-
-    color = getLight(color);
-
-    color = pow(color, 1 / vec3(gamma));
-    fragColor = vec4(color, 1.0);
+    fragColor = vec4(pow(getLight(pow(texture(u_texture, in_UV).rgb, vec3(5))), 1 / vec3(5)), 1.0);
 }

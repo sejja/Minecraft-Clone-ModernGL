@@ -6,7 +6,7 @@
 #	Copyright © 2023 Deusto. All Rights reserved
 #
 
-import GraphicsPipeline
+from Engine.Graphics import GraphicsPipeline
 
 class ShaderProgram:
     # ------------------------------------------------------------------------
@@ -23,7 +23,7 @@ class ShaderProgram:
                 file.close()
 
         self.mProgram = GraphicsPipeline.Gfx.GetContext().program(vertex_shader= shaders[0],
-            fragment_shader= shaders[1])
+                                                                  fragment_shader= shaders[1])
 
     # ------------------------------------------------------------------------
     # Get Shader Object

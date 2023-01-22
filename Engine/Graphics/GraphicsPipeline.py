@@ -1,9 +1,5 @@
 import moderngl
 
-import AssetManager
-import GraphicsPipeline
-
-
 class graphicsPipeline:
     def SetApp(self, app):
         self.app = app
@@ -17,8 +13,11 @@ class graphicsPipeline:
     def GetContext(self):
         return self.ctx
 
+    def SetCamera(self, camera):
+        self.camera = camera
+
     def GetCamera(self):
-        return self.app.camera
+        return self.camera
 
     def GetLights(self):
         return self.lights
@@ -28,13 +27,13 @@ class graphicsPipeline:
 
     def render_shadow(self):
         if not 'self.depth_fbo' in locals():
-            self.depth_texture = GraphicsPipeline.Gfx.get_depth_texture()
+            self.depth_texture = self.depth_texture
             self.depth_fbo = self.ctx.framebuffer(depth_attachment=self.depth_texture)
 
         self.depth_fbo.clear()
         self.depth_fbo.use()
 
-        for obj in self.app.scene.objects:
+        for obj in self.app.scene.mObjects:
             obj.ShadowRender()
 
     # ------------------------------------------------------------------------
@@ -43,7 +42,7 @@ class graphicsPipeline:
     # Gets the time elapsed between frames
     # ------------------------------------------------------------------------
     def GetDeltaTime(self):
-        return self.app.delta_time
+        return self.app.mDeltaTime
 
     # ------------------------------------------------------------------------
     # GetWindowWidth
@@ -51,7 +50,7 @@ class graphicsPipeline:
     # Get the Width of the window
     # ------------------------------------------------------------------------
     def GetWindowWidth(self):
-        return self.app.WIN_SIZE[0]
+        return 1600
 
     # ------------------------------------------------------------------------
     # GetWindowHeight
@@ -59,17 +58,17 @@ class graphicsPipeline:
     # Get the Height of the window
     # ------------------------------------------------------------------------
     def GetWindowHeight(self):
-        return self.app.WIN_SIZE[1]
+        return 900
 
     def render(self):
         self.render_shadow()
         self.ctx.screen.use()
-        self.app.scene.render()
+        self.app.scene.Render()
 
     def destroy(self):
         self.depth_fbo.release()
 
-    def get_depth_texture(self):
+    def GetDepthTexture(self):
         return self.depth_texture
 
 Gfx = graphicsPipeline()

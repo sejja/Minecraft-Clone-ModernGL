@@ -8,7 +8,7 @@
 
 import pygame
 import moderngl
-import GraphicsPipeline
+from Engine.Graphics import GraphicsPipeline
 
 class Texture:
     # ------------------------------------------------------------------------
@@ -17,13 +17,13 @@ class Texture:
     # Constructs a texture with the path of the image file
     # ------------------------------------------------------------------------
     def __init__(self, path):
-        self.texture = pygame.image.load(path + ".png").convert()
-        self.texture = pygame.transform.flip(self.texture, flip_x= False, flip_y= True)
-        self.texture = GraphicsPipeline.Gfx.GetContext().texture(size= self.texture.get_size(), components= 3,
-                                                            data= pygame.image.tostring(self.texture, 'RGB'))
-        self.texture.filter = moderngl.NEAREST_MIPMAP_NEAREST, moderngl.NEAREST
-        self.texture.build_mipmaps()
-        self.texture.anisotropy = 32
+        self.mTexture = pygame.image.load(path + ".png").convert()
+        self.mTexture = pygame.transform.flip(self.mTexture, flip_x= False, flip_y= True)
+        self.mTexture = GraphicsPipeline.Gfx.GetContext().texture(size= self.mTexture.get_size(), components= 3,
+                                                                   data= pygame.image.tostring(self.mTexture, 'RGB'))
+        self.mTexture.filter = moderngl.NEAREST_MIPMAP_NEAREST, moderngl.NEAREST
+        self.mTexture.build_mipmaps()
+        self.mTexture.anisotropy = 32
 
     # ------------------------------------------------------------------------
     # Get Texture Object
@@ -31,7 +31,7 @@ class Texture:
     # Gets the Texture OpenGL Handle
     # ------------------------------------------------------------------------
     def GetTexture(self):
-        return self.texture
+        return self.mTexture
 
     # ------------------------------------------------------------------------
     # Destroy
@@ -39,4 +39,4 @@ class Texture:
     # Releases the Data needed
     # ------------------------------------------------------------------------
     def Destroy(self):
-        self.texture.release()
+        self.mTexture.release()

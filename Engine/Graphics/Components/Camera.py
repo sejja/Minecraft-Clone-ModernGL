@@ -8,9 +8,7 @@
 
 import math
 import glm
-import AssetManager
-import GraphicsPipeline
-
+from Engine.Graphics import GraphicsPipeline
 
 class Camera:
     #------------------------------------------------------------------------
@@ -31,21 +29,21 @@ class Camera:
     #
     # Updates the Camera Vectors
     # ------------------------------------------------------------------------
-    def update(self):
+    def Update(self):
         yaw, pitch = glm.radians(self.yaw), glm.radians(self.pitch)
         self.forward = glm.normalize(glm.vec3(math.cos(yaw) * math.cos(pitch),
                                 math.sin(pitch),
                                 math.sin(yaw) * math.cos(pitch)))
         self.right = glm.normalize(glm.cross(self.forward, glm.vec3(0, 1, 0)))
         self.up = glm.normalize(glm.cross(self.right, self.forward))
-        self.m_view = self.get_view_matrix()
+        self.m_view = self.GetViewMatrix()
 
     # ------------------------------------------------------------------------
     # Get View Matrix
     #
     # Computes the View Matrix and returns it
     # ------------------------------------------------------------------------
-    def get_view_matrix(self):
+    def GetViewMatrix(self):
         return glm.lookAt(self.position, self.position + self.forward, self.up)
 
     # ------------------------------------------------------------------------
@@ -53,9 +51,9 @@ class Camera:
     #
     # Computes the Projection Matrix and returns it
     # ------------------------------------------------------------------------
-    def get_projection_matrix(self):
+    def GetProjectionMatrix(self):
         return glm.perspective(glm.radians(50), GraphicsPipeline.Gfx.GetWindowWidth() /
-            GraphicsPipeline.Gfx.GetWindowHeight(), 0.01, 5000)
+                               GraphicsPipeline.Gfx.GetWindowHeight(), 0.01, 5000)
 
 
 

@@ -1,5 +1,6 @@
-import ECSystem
-from Graphics.Components import SkyboxRenderer
+from Engine.Core import ECSystem
+from Engine.Graphics.Components import SkyboxRenderer
+
 
 class SkyBox(ECSystem.Object):
     def __init__(self, tex_id='skybox'):

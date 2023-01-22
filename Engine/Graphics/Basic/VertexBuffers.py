@@ -7,7 +7,7 @@
 #
 
 import numpy as np
-import GraphicsPipeline
+from Engine.Graphics import GraphicsPipeline
 import pywavefront
 
 class BaseVertexBuffer:

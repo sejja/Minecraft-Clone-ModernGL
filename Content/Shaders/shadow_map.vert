@@ -1,12 +1,11 @@
-#version 330 core
+#version 460 core
 
 layout (location = 2) in vec3 in_position;
 
-uniform mat4 m_proj;
-uniform mat4 m_view_light;
-uniform mat4 m_model;
+uniform mat4 m_Proj;
+uniform mat4 m_ViewLight;
+uniform mat4 m_Model;
 
 void main() {
-    mat4 mvp = m_proj * m_view_light * m_model;
-    gl_Position = mvp * vec4(in_position, 1.0);
+    gl_Position = m_Proj * m_ViewLight * m_Model * vec4(in_position, 1.0);
 }

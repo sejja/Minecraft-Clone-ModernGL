@@ -7,7 +7,7 @@
 #
 
 import os
-import Importers
+from Engine.Core.Assets import Importers
 
 class AssetManager:
     # ------------------------------------------------------------------------
@@ -43,7 +43,6 @@ class AssetManager:
     #
     # Returns wether an Asset exists or not
     # ------------------------------------------------------------------------
-
     def AssetExists(self, name):
         return name in self.content.keys()
 

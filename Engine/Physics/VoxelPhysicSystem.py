@@ -1,6 +1,14 @@
 import glm
 
 class VoxelPhysicSystem():
+    # ------------------------------------------------------------------------
+    # Bresenham 3D
+    #
+    # Calculates shortest blocky path between two points
+    # CODE FROM GEEKSFORGEEKS
+    #
+    # https://www.geeksforgeeks.org/bresenhams-algorithm-for-3-d-line-drawing/
+    # ------------------------------------------------------------------------
     @staticmethod
     def Bresenham3D(x1, y1, z1, x2, y2, z2):
         ListOfPoints = []

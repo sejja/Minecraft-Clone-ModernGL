@@ -6,7 +6,7 @@
 #	Copyright © 2023 Deusto. All Rights reserved
 #
 
-import GraphicsPipeline
+from Engine.Graphics import GraphicsPipeline
 
 class Model:
     # ------------------------------------------------------------------------
@@ -19,7 +19,7 @@ class Model:
         self.mShader = shader
         self.mVao = GraphicsPipeline.Gfx.GetContext().vertex_array(self.mShader,
             [(vertex_object.GetGLVertexBufferObject(), self.mVertexBuffer.GetFormat(),
-            *self.mVertexBuffer.GetAttributes())])
+              *self.mVertexBuffer.GetAttributes())])
 
     # ------------------------------------------------------------------------
     # Get OpenGL Array Object

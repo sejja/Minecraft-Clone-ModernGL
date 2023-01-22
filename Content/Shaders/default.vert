@@ -1,18 +1,18 @@
-#version 330 core
+#version 460 core
 
 layout (location = 0) in vec2 in_texcoord_0;
 layout (location = 1) in vec3 in_normal;
 layout (location = 2) in vec3 in_position;
 
-out vec2 uv_0;
-out vec3 normal;
-out vec3 fragPos;
-out vec4 shadowCoord;
+out vec2 in_UV;
+out vec3 in_Normal;
+out vec3 in_Pos;
+out vec4 in_Shadowcord;
 
-uniform mat4 m_proj;
-uniform mat4 m_view;
-uniform mat4 m_view_light;
-uniform mat4 m_model;
+uniform mat4 m_Proj;
+uniform mat4 m_View;
+uniform mat4 m_ViewLight;
+uniform mat4 m_Model;
 
 mat4 m_shadow_bias = mat4(
     0.5, 0.0, 0.0, 0.0,
@@ -21,12 +21,10 @@ mat4 m_shadow_bias = mat4(
     0.5, 0.5, 0.5, 1.0);
 
 void main() {
-    uv_0 = in_texcoord_0;
-    fragPos = vec3(m_model * vec4(in_position, 1.0));
-    normal = mat3(transpose(inverse(m_model))) * normalize(in_normal);
-    gl_Position = m_proj * m_view * m_model * vec4(in_position, 1.0);
-
-    mat4 shadowMVP = m_proj * m_view_light * m_model;
-    shadowCoord =  m_shadow_bias * shadowMVP * vec4(in_position, 1.0);
-    shadowCoord.z -= 0.0005;
+    in_Shadowcord =  m_shadow_bias * m_Proj * m_ViewLight * m_Model * vec4(in_position, 1.0);
+    in_Shadowcord.z -= 0.0001;
+    in_UV = in_texcoord_0;
+    in_Pos = vec3(m_Model * vec4(in_position, 1.0));
+    in_Normal = mat3(transpose(inverse(m_Model))) * normalize(in_normal);
+    gl_Position = m_Proj * m_View * m_Model * vec4(in_position, 1.0);
 }
